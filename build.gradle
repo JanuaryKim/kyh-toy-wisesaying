@@ -2,7 +2,11 @@ plugins {
     id 'org.springframework.boot' version '2.7.4'
     id 'io.spring.dependency-management' version '1.0.14.RELEASE'
     id 'java'
+    id "org.asciidoctor.jvm.convert" version "3.3.2" //rest docs
 }
+
+
+
 
 group = 'kyh.toy'
 version = '0.0.1-SNAPSHOT'
@@ -18,13 +22,20 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    asciidoctorExt
+}
+
+
 dependencies {
+
+
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
 
     //Auditing
     implementation'org.springframework.boot:spring-boot-starter-web'
@@ -33,8 +44,68 @@ dependencies {
 
     //h2
     runtimeOnly 'com.h2database:h2'
+
+    //유효성 어노테이션
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+
+
+
+
+    //Json 맵퍼
+    implementation 'com.google.code.gson:gson:2.9.0'
+
+
+
+
+    //rest docs
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+
+
+    //MapStruct
+    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
+
+
+
 }
 
-tasks.named('test') {
+//rest docs
+ext {
+    snippetsDir = file('build/generated-snippets') //스니핏이 생성될 경로를 변수에 할당
+}
+
+
+tasks.named('test') { //spring boot test로 인해 원래 있는 test task
+    outputs.dir snippetsDir //rest docs, test task 작동할때 생성되는 스니핏의 저장 경로를 snippetsDir 에 저장된 경로로 설정하겠다
     useJUnitPlatform()
+}
+
+asciidoctor { //실제 스니핏 asciidoc 문서를 만드는 task
+    configurations 'asciidoctorExt' //asciidoctor 작의 구성으로 configurations 을 사용하겠다.
+    inputs.dir snippetsDir //해당 작업의 input 디렉토리를 snippetsDir로 하겠다. 즉, test task의 결과물이 asciidoctor task의 인풋이다
+    dependsOn test //test task가 먼저 시작되고 해당 task가 돌아간다 (즉, 의존하겠다)
+}
+
+task copyDocument(type: Copy) {
+    dependsOn asciidoctor
+    println "asciidoctor output: ${asciidoctor.outputDir}"
+    from file("${asciidoctor.outputDir}")
+    into file("src/main/resources/static/docs")
+}
+
+
+bootJar {
+    dependsOn copyDocument  //asciidoctor task가 먼저 시작되고 해당 task가 돌아간다 (즉, 의존하겠다)
+    from ("${asciidoctor.outputDir}") { //asciidoctor의 결과물을 jar 파일 안에 static/docs 경로에 복사한다.
+        into 'static/docs'
+    }
+}
+
+
+
+
+build {
+    dependsOn copyDocument
 }

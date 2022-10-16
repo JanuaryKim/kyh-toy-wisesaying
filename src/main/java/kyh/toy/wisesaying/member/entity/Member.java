@@ -15,6 +15,7 @@ import java.util.List;
 @Entity
 public class Member  {
 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long memberId;
 
@@ -29,7 +30,6 @@ public class Member  {
 
     @Column(nullable = false)
     private String password;
-
 
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
     List<Card> cardList = new ArrayList<>();
