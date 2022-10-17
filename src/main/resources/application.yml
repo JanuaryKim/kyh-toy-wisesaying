@@ -23,3 +23,7 @@ photo:
     url: ./user_photo/
   card:
     url: ./card_photo/
+
+
+hello:
+  name: nice
