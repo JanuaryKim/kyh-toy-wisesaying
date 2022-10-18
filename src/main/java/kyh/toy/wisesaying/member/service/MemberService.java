@@ -1,6 +1,9 @@
 package kyh.toy.wisesaying.member.service;
 
 
+import kyh.toy.wisesaying.event.CustomEventPublisher;
+import kyh.toy.wisesaying.event.DeleteMemberEvent;
+import kyh.toy.wisesaying.event.CreateMemberEvent;
 import kyh.toy.wisesaying.exception.BusinessException;
 import kyh.toy.wisesaying.exception.ErrorCode;
 import kyh.toy.wisesaying.member.entity.Member;
@@ -22,16 +25,16 @@ public class MemberService {
 
     private final MemberRepository repository;
     private final CustomBeanUtils<Member> beanUtils;
-
+    private final CustomEventPublisher customEventPublisher;
     /** ------------------------- 핸들러 메소드 연결됨 -------------------------**/
 
     public Member createMember(Member member) {
 
         verifyNotExistEmail(member.getEmail());
-
         Member savedMember = repository.save(member);
 
-
+        //환영 이메일
+        customEventPublisher.publish(CreateMemberEvent.of(customEventPublisher, "Post 발생", savedMember));
         return savedMember;
     }
 
@@ -46,8 +49,10 @@ public class MemberService {
     public void eraseMember(Long memberId) {
 
         //존재하지 않는다면 에러
-        verifyExistMember(memberId);
+        Member deletedMember = verifyExistMember(memberId);
 
+        //탈퇴시 이메일 전송
+        customEventPublisher.publish(DeleteMemberEvent.of(customEventPublisher, "Patch 발생", deletedMember));
         repository.deleteById(memberId);
     }
 
@@ -55,7 +60,6 @@ public class MemberService {
 
         Member findMember = verifyExistMember(member.getMemberId());
         Member modifiedMember = beanUtils.copyNotNullProperties(findMember, member);
-
         Member updatedMember = repository.save(modifiedMember);
 
         return updatedMember;

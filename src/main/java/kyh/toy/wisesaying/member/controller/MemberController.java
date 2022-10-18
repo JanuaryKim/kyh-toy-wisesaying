@@ -4,6 +4,8 @@ package kyh.toy.wisesaying.member.controller;
 import kyh.toy.wisesaying.dto.MultipleResponseDto;
 import kyh.toy.wisesaying.dto.PageInfo;
 import kyh.toy.wisesaying.dto.SingleResponseDto;
+import kyh.toy.wisesaying.mail.EmailService;
+import kyh.toy.wisesaying.mail.MailDto;
 import kyh.toy.wisesaying.member.dto.MemberDto;
 import kyh.toy.wisesaying.member.entity.Member;
 import kyh.toy.wisesaying.member.mapper.MemberMapper;
@@ -30,7 +32,6 @@ public class MemberController {
     private final MemberService memberService;
 
     private final MemberMapper memberMapper;
-
 
 
     @PostMapping

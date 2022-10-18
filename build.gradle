@@ -69,6 +69,10 @@ dependencies {
 
 
 
+    //smtp를 이용한 메일 기능
+    implementation 'org.springframework.boot:spring-boot-starter-mail:2.7.1'
+
+
 }
 
 //rest docs
