@@ -10,10 +10,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableJpaAuditing
 @SpringBootApplication
 public class WiseSayingApplication {
-    private static ApplicationContext applicationContext;
+
     public static void main(String[] args) {
 
-        applicationContext = SpringApplication.run(WiseSayingApplication.class, args);
-
+        SpringApplication.run(WiseSayingApplication.class, args);
     }
 }

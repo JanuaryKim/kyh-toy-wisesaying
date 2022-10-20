@@ -72,6 +72,13 @@ dependencies {
     //smtp를 이용한 메일 기능
     implementation 'org.springframework.boot:spring-boot-starter-mail:2.7.1'
 
+    //jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly	'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    //Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security' //스프링 시큐리티
 
 }
 

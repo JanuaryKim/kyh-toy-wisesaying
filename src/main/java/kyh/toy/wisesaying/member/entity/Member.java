@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @Getter
 @Entity
-public class Member  {
+public class Member {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -33,5 +33,11 @@ public class Member  {
 
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
     List<Card> cardList = new ArrayList<>();
+
+    //해당 엔티티의 Id를 프라이머리키와 동시에 포린키로 갖는 테이블을 생성해준다.
+    // 해당 테이블의 로우는 List의 요소 갯수만큼 Insert 된다. 즉 ID가 중복되는 테이블의 구조를 가진다.
+    @ElementCollection(fetch = FetchType.EAGER)
+    List<String> roles = new ArrayList<>();
+
 
 }

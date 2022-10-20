@@ -71,6 +71,8 @@ public class MemberDto {
         private String phone;
 
         private List<CardDto.Response> cardList;
+
+        private List<String> roles;
     }
 
 }

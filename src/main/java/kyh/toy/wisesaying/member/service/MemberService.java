@@ -8,12 +8,14 @@ import kyh.toy.wisesaying.exception.BusinessException;
 import kyh.toy.wisesaying.exception.ErrorCode;
 import kyh.toy.wisesaying.member.entity.Member;
 import kyh.toy.wisesaying.member.repository.MemberRepository;
+import kyh.toy.wisesaying.utils.CustomAuthorityUtil;
 import kyh.toy.wisesaying.utils.CustomBeanUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +28,15 @@ public class MemberService {
     private final MemberRepository repository;
     private final CustomBeanUtils<Member> beanUtils;
     private final CustomEventPublisher customEventPublisher;
+    private final CustomAuthorityUtil customAuthorityUtil;
+    private final PasswordEncoder passwordEncoder;
     /** ------------------------- 핸들러 메소드 연결됨 -------------------------**/
 
     public Member createMember(Member member) {
 
         verifyNotExistEmail(member.getEmail());
+        member.setRoles(customAuthorityUtil.createRoles(member.getEmail()));
+        member.setPassword(passwordEncoder.encode(member.getPassword()));
         Member savedMember = repository.save(member);
 
         //환영 이메일
@@ -85,12 +91,7 @@ public class MemberService {
                 member -> {throw new BusinessException(ErrorCode.ALREADY_MEMBER_EXISTS);});
     }
 
-    //혹시 있는 멤버인가 검증. 있으면 에러
-    private void verifyNotExistEmail(Long memberId) {
 
-        repository.findById(memberId).ifPresent(
-                member -> {throw new BusinessException(ErrorCode.ALREADY_MEMBER_EXISTS);});
-    }
 
     private Member getMember(Long memberId) {
         Member member = verifyExistMember(memberId);
@@ -98,8 +99,13 @@ public class MemberService {
     }
 
     //있는 멤버임을 검증
-    private Member verifyExistMember(Long memberId) {
+    public Member verifyExistMember(Long memberId) {
         return repository.findById(memberId).orElseThrow(
+                ()-> {throw new BusinessException(ErrorCode.MEMBER_NOT_EXISTS);});
+    }
+
+    public Member verifyExistMember(String memberEmail) {
+        return repository.findMemberByEmail(memberEmail).orElseThrow(
                 ()-> {throw new BusinessException(ErrorCode.MEMBER_NOT_EXISTS);});
     }
 }
